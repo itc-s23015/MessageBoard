@@ -6,6 +6,10 @@ import jp.ac.itcollege.s23015.messageboard.infrastructure.database.dao.MessagesE
 import jp.ac.itcollege.s23015.messageboard.infrastructure.database.dao.MessagesTable
 import jp.ac.itcollege.s23015.messageboard.infrastructure.database.dao.ThreadsEntity
 import jp.ac.itcollege.s23015.messageboard.infrastructure.database.dao.UsersEntity
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Repository
 
@@ -59,7 +63,11 @@ class MessagesRepositoryImpl: MessagesRepository {
 
     override fun deleteMessage(id: Long) {
         transaction {
-            MessagesEntity.findById(id)?.delete()
+            val messagesEntity = MessagesEntity.findById(id)
+            messagesEntity?.apply {
+                deleted = true
+                updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            }
         }
     }
 }

@@ -4,6 +4,9 @@ import jp.ac.itcollege.s23015.messageboard.domain.model.Threads
 import jp.ac.itcollege.s23015.messageboard.domain.repository.ThreadsRepository
 import jp.ac.itcollege.s23015.messageboard.infrastructure.database.dao.ThreadsEntity
 import jp.ac.itcollege.s23015.messageboard.infrastructure.database.dao.UsersEntity
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Repository
 
@@ -53,7 +56,11 @@ class ThreadsRepositoryImpl : ThreadsRepository {
 
     override fun deleteThread(id: Long) {
         transaction {
-            ThreadsEntity.findById(id)?.delete()
+            val threadEntity = ThreadsEntity.findById(id)
+            threadEntity?.apply {
+                deleted = true
+                updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            }
         }
     }
 }
